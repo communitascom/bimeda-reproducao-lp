@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estrutura da LP | Linha Bimeda Reprodução</title>
+<style>
+:root{
+  --ink:#2b2b2b; --mid:#767676; --soft:#9a9a9a;
+  --line:#c9c9c9; --fill:#e9e9e9; --fill2:#dedede; --page:#f7f7f7;
+  --note:#0b64a8;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.55 var(--sans)}
+.page{max-width:1080px;margin:0 auto;padding:0 24px 80px}
+
+/* cabeçalho do documento */
+.doc-head{padding:48px 0 28px;border-bottom:3px solid var(--ink)}
+.doc-head h1{margin:0 0 6px;font-size:30px;line-height:1.15}
+.doc-head p{margin:0;color:var(--mid);font-size:15px}
+.doc-meta{margin-top:18px;font-family:var(--mono);font-size:12px;color:var(--soft);text-transform:uppercase;letter-spacing:.08em}
+
+.legenda{margin:26px 0 0;padding:16px 18px;border:1px solid var(--line);background:#fff}
+.legenda b{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-bottom:10px}
+.legenda ul{margin:0;padding-left:18px;color:var(--mid);font-size:14px}
+.legenda li{margin-bottom:4px}
+
+/* seções */
+.sec{margin-top:44px;border:1px solid var(--line);background:#fff}
+.sec-bar{display:flex;align-items:baseline;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--fill)}
+.sec-n{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--mid)}
+.sec-t{font-size:17px;font-weight:700}
+.sec-tone{margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--soft);text-transform:uppercase}
+.sec-body{padding:26px 20px}
+.sec.dark .sec-body{background:#efefef}
+
+/* blocos genéricos */
+.ph{border:1px dashed var(--soft);background:repeating-linear-gradient(135deg,transparent,transparent 9px,rgba(0,0,0,.045) 9px,rgba(0,0,0,.045) 18px);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);padding:12px}
+.txt{background:var(--fill2);height:11px;margin-bottom:8px}
+.txt.s{width:55%} .txt.m{width:78%} .txt.l{width:94%}
+.h-line{background:var(--soft);height:20px;margin-bottom:12px}
+.h-line.xl{height:30px;width:86%} .h-line.lg{height:24px;width:70%} .h-line.md{height:18px;width:52%}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--ink);padding:11px 20px;
+     font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin:0 8px 8px 0}
+.btn.ghost{border-style:dashed;color:var(--mid);border-color:var(--soft)}
+.cap{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin:0 0 10px}
+.real{font-size:14px;color:var(--ink);margin:0 0 10px}
+.real b{font-weight:700}
+.list{margin:0 0 12px;padding-left:18px;color:var(--mid);font-size:14px}
+.list li{margin-bottom:5px}
+
+.row{display:grid;gap:22px}
+.row-2{grid-template-columns:1fr 1fr}
+.row-3{grid-template-columns:repeat(3,1fr)}
+.row-4{grid-template-columns:repeat(4,1fr)}
+.row-5{grid-template-columns:repeat(5,1fr)}
+.row-6{grid-template-columns:repeat(6,1fr)}
+.row-side{grid-template-columns:1fr 1fr;align-items:start}
+.row-form{grid-template-columns:1fr 380px;align-items:start}
+
+.num{border:1px solid var(--line);padding:14px 10px;text-align:center}
+.num b{display:block;font-size:24px;line-height:1}
+.num span{display:block;margin-top:6px;font-size:12px;color:var(--mid);line-height:1.3}
+
+.nota{margin-top:16px;padding:12px 14px;border-left:3px solid var(--note);background:#f2f8fd;font-size:13.5px;color:#20455f}
+.nota b{color:var(--note)}
+
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tab{border:1px solid var(--soft);padding:9px 14px;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mid)}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tl{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:6px}
+.tl div{border-left:3px solid var(--ink);padding:0 10px 0 10px}
+.tl b{display:block;font-family:var(--mono);font-size:11px;color:var(--mid);margin-bottom:6px}
+.tl .bar{height:30px;background:var(--fill2);margin-bottom:6px}
+.tl span{font-size:12px;color:var(--mid)}
+
+.field{border:1px solid var(--line);height:38px;margin-bottom:10px;background:#fff}
+.field.lbl{border:0;height:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-bottom:4px}
+
+.foot{margin-top:44px;padding-top:20px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--soft);text-transform:uppercase;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+@media (max-width:820px){
+  .row-2,.row-3,.row-4,.row-5,.row-6,.row-side,.row-form{grid-template-columns:1fr}
+  .tl{grid-template-columns:1fr;gap:14px}
+}
+@media print{
+  body{background:#fff}
+  .sec{break-inside:avoid;page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-head">
+    <h1>Landing page da Linha Bimeda Reprodução</h1>
+    <p>Estrutura para validação. Baixa fidelidade: define a ordem das seções, o que entra em cada uma e a
+      hierarquia da informação. Cores, fotos e tipografia finais não são o objeto desta etapa.</p>
+    <p class="doc-meta">Communitas Com. · Bimeda · BR_MR26_0024 · Versão 1</p>
+  </header>
+
+  <div class="legenda">
+    <b>Como ler este documento</b>
+    <ul>
+      <li>As áreas hachuradas são imagens, vídeo ou gráficos.</li>
+      <li>As barras cinzas representam títulos e blocos de texto.</li>
+      <li>Os textos em preto são conteúdo real, retirado do folheto.</li>
+      <li>As notas em azul explicam a intenção de cada bloco.</li>
+    </ul>
+  </div>
+
+  <!-- 01 -->
+  <section class="sec">
+    <div class="sec-bar"><span class="sec-n">01</span><span class="sec-t">Abertura</span><span class="sec-tone">Fundo escuro, foto de rebanho</span></div>
+    <div class="sec-body">
+      <div class="ph" style="height:90px;width:200px;margin-bottom:20px">Logo Bimeda Reprodução</div>
+      <p class="real"><b>Reprodução começa com o produto certo.<br>Começa com a linha Bimeda Reprodução.</b></p>
+      <div class="txt l"></div><div class="txt m"></div>
+      <div style="margin-top:18px">
+        <span class="btn">Baixar o folheto</span>
+        <span class="btn ghost">Ver os protocolos</span>
+      </div>
+      <div class="row row-4" style="margin-top:26px">
+        <div class="num"><b>63,4%</b><span>taxa de prenhez com Biprogest</span></div>
+        <div class="num"><b>5</b><span>produtos na linha</span></div>
+        <div class="num"><b>4</b><span>protocolos prontos</span></div>
+        <div class="num"><b>+65</b><span>anos de Bimeda no mundo</span></div>
+      </div>
+      <p class="nota"><b>Intenção:</b> a marca da linha aparece em destaque, como na capa do folheto. A faixa
+        de números entrega o argumento principal antes de qualquer rolagem.</p>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">02</span><span class="sec-t">Vídeo institucional</span><span class="sec-tone">Fundo escuro</span></div>
+    <div class="sec-body">
+      <p class="real"><b>Do laboratório ao curral</b></p>
+      <div class="txt l"></div><div class="txt m"></div>
+      <div class="ph" style="height:230px;margin:18px 0">Vídeo 1:40</div>
+      <div class="row row-3">
+        <div><div class="txt l"></div><div class="txt m"></div></div>
+        <div><div class="txt l"></div><div class="txt m"></div></div>
+        <div><div class="txt l"></div><div class="txt m"></div></div>
+      </div>
+      <p class="nota"><b>Intenção:</b> o vídeo vem cedo porque resolve linha e institucional juntos e segura
+        o visitante. Sobe para YouTube ou Vimeo na versão final.</p>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">03</span><span class="sec-t">eCG BR, o lançamento</span><span class="sec-tone">Fundo azul</span></div>
+    <div class="sec-body">
+      <p class="real"><b>Chegou o eCG BR para multiplicar a produtividade do seu rebanho com tecnologia e
+        inovação.</b></p>
+      <div class="txt l"></div><div class="txt l"></div><div class="txt m"></div>
+      <div class="ph" style="height:260px;margin:20px 0">Pack shot eCG BR, caixa e frascos, imagem inteira</div>
+      <div class="row row-side">
+        <div>
+          <p class="cap">Diferenciais</p>
+          <ul class="list">
+            <li>Aumenta o crescimento folicular</li>
+            <li>Eleva as taxas de ovulação</li>
+            <li>Rígido controle de qualidade</li>
+          </ul>
+        </div>
+        <div>
+          <div class="ph" style="height:170px">Gráfico: folículos, 1,6 · 6,3 · 6,9</div>
+          <div class="txt m" style="margin-top:10px"></div>
+        </div>
+      </div>
+      <div class="txt l" style="margin-top:18px"></div>
+      <p class="nota"><b>Intenção:</b> o lançamento abre a parte de produto, logo depois do vídeo. O resultado
+        do estudo vem colado ao produto, não em uma seção separada.</p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section class="sec">
+    <div class="sec-bar"><span class="sec-n">04</span><span class="sec-t">A linha completa</span><span class="sec-tone">Fundo branco</span></div>
+    <div class="sec-body">
+      <p class="real" style="text-align:center"><b>A linha Bimeda Reprodução</b></p>
+      <div class="txt l" style="margin:0 auto 8px"></div><div class="txt m" style="margin:0 auto 18px"></div>
+      <div class="ph" style="height:180px">Foto da família de produtos</div>
+      <div class="row row-5" style="margin-top:20px;gap:0">
+        <div class="num"><b style="font-size:17px">eCG BR</b><span>Estimula o crescimento folicular</span></div>
+        <div class="num"><b style="font-size:17px">Biprogest</b><span>Controla o ciclo estral</span></div>
+        <div class="num"><b style="font-size:17px">Energect FC</b><span>Suporte anabólico</span></div>
+        <div class="num"><b style="font-size:17px">Sincroben</b><span>Sincroniza e induz a ovulação</span></div>
+        <div class="num"><b style="font-size:17px">Clocio</b><span>Promove a luteólise</span></div>
+      </div>
+      <p class="nota"><b>Intenção:</b> uma visão geral só, sem repetir a foto e os cards. Cada nome leva para
+        o bloco do produto mais abaixo.</p>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">05</span><span class="sec-t">Por que IATF</span><span class="sec-tone">Fundo azul-escuro</span></div>
+    <div class="sec-body">
+      <p class="real">Entre as biotecnologias reprodutivas disponíveis para rebanhos bovinos, a IATF
+        (inseminação artificial em tempo fixo) é sem dúvida a mais conhecida e usada atualmente. Entre as
+        principais vantagens de utilizá-la, podemos citar:</p>
+      <div class="row row-2" style="margin-top:14px">
+        <ul class="list">
+          <li>Evolução genética do rebanho</li>
+          <li>Antecipação das prenhezes</li>
+          <li>Aumento da taxa de prenhes ao final da estação de monta</li>
+          <li>Redução do intervalo entre partos</li>
+        </ul>
+        <ul class="list">
+          <li>Padronização do rebanho</li>
+          <li>Concentração dos nascimentos e consequentemente do desmame</li>
+          <li>Aumento do peso ao desmame</li>
+          <li>Redução da idade para abate</li>
+        </ul>
+      </div>
+      <p class="nota"><b>Intenção:</b> mesmo bloco da página 3 do folheto, na mesma posição relativa: prepara
+        o terreno antes de entrar produto a produto.</p>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section class="sec">
+    <div class="sec-bar"><span class="sec-n">06</span><span class="sec-t">Biprogest</span><span class="sec-tone">Fundo branco</span></div>
+    <div class="sec-body">
+      <div class="row row-side">
+        <div>
+          <p class="real"><b>Biprogest</b></p>
+          <p class="cap">Progesterona (P4) · Dispositivo intravaginal</p>
+          <div class="txt l"></div><div class="txt l"></div><div class="txt m"></div>
+          <ul class="list" style="margin-top:12px">
+            <li>Alta concentração de progesterona (1,25 g)</li>
+            <li>Design anatômico</li>
+            <li>Baixo índice de perda</li>
+          </ul>
+          <div class="txt s"></div>
+        </div>
+        <div class="ph" style="height:280px">Embalagem Biprogest, sem recorte</div>
+      </div>
+      <div class="row row-2" style="margin-top:24px">
+        <div><div class="ph" style="height:180px">Gráfico 1: concentração de P4, 1º, 2º e 3º uso</div><div class="txt m" style="margin-top:10px"></div></div>
+        <div><div class="ph" style="height:180px">Gráfico 2: prenhez, 59,6% x 63,4%</div><div class="txt m" style="margin-top:10px"></div></div>
+      </div>
+      <p class="nota"><b>Intenção:</b> a partir daqui, todo produto segue o mesmo padrão: produto de um lado,
+        texto e diferenciais do outro, e o resultado logo abaixo.</p>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">07</span><span class="sec-t">Energect FC</span><span class="sec-tone">Fundo azul-escuro</span></div>
+    <div class="sec-body">
+      <div class="row row-side">
+        <div>
+          <p class="real"><b>Energect FC</b></p>
+          <p class="cap">Aminoácidos essenciais (BCAA) e vitaminas lipossolúveis · Injetável</p>
+          <div class="txt l"></div><div class="txt l"></div><div class="txt m"></div>
+          <ul class="list" style="margin-top:12px">
+            <li>BCAA: cerca de 35% do desenvolvimento muscular</li>
+            <li>Ativação da via mTOR</li>
+            <li>Vitaminas lipossolúveis</li>
+          </ul>
+          <div class="txt s"></div>
+        </div>
+        <div class="ph" style="height:280px">Embalagem Energect FC e molécula BCAA</div>
+      </div>
+      <div class="ph" style="height:230px;margin-top:24px">Figura 1: vias metabólicas do BCAA, largura total</div>
+      <p class="nota"><b>Intenção:</b> a figura das vias metabólicas entra inteira, ocupando a largura da
+        tela, como na página 4 do folheto.</p>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section class="sec">
+    <div class="sec-bar"><span class="sec-n">08</span><span class="sec-t">Sincroben</span><span class="sec-tone">Fundo branco</span></div>
+    <div class="sec-body">
+      <div class="row row-side">
+        <div class="ph" style="height:250px">Embalagem Sincroben</div>
+        <div>
+          <p class="real"><b>Sincroben</b></p>
+          <p class="cap">Benzoato de estradiol · Injetável</p>
+          <div class="txt l"></div><div class="txt m"></div>
+          <ul class="list" style="margin-top:12px">
+            <li>Indução de ovulação</li>
+            <li>Sincroniza a emergência folicular</li>
+          </ul>
+          <p class="cap" style="margin-top:18px">O que ele entrega no protocolo</p>
+          <div class="row row-2">
+            <div><p class="real" style="margin-bottom:4px"><b>Dia 0</b></p><div class="txt l"></div><div class="txt m"></div></div>
+            <div><p class="real" style="margin-bottom:4px"><b>Retirada</b></p><div class="txt l"></div><div class="txt m"></div></div>
+          </div>
+        </div>
+      </div>
+      <p class="nota"><b>Intenção:</b> Sincroben e Clocio não têm gráfico no folheto. No lugar do resultado
+        numérico, entra o papel de cada um dentro do protocolo.</p>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">09</span><span class="sec-t">Clocio</span><span class="sec-tone">Fundo cinza-claro</span></div>
+    <div class="sec-body">
+      <div class="row row-side">
+        <div>
+          <p class="real"><b>Clocio</b></p>
+          <p class="cap">Cloprostenol sódico · Injetável</p>
+          <div class="txt l"></div><div class="txt l"></div><div class="txt m"></div>
+          <ul class="list" style="margin-top:12px">
+            <li>Cloprostenol sódico</li>
+            <li>Facilita a involução uterina</li>
+            <li>Maior meia vida plasmática em relação a outros análogos</li>
+          </ul>
+          <p class="cap" style="margin-top:18px">O que ele entrega no protocolo</p>
+          <div class="row row-3">
+            <div><p class="real" style="margin-bottom:4px"><b>Luteólise</b></p><div class="txt l"></div></div>
+            <div><p class="real" style="margin-bottom:4px"><b>Involução</b></p><div class="txt l"></div></div>
+            <div><p class="real" style="margin-bottom:4px"><b>Índices</b></p><div class="txt l"></div></div>
+          </div>
+        </div>
+        <div class="ph" style="height:250px">Embalagem Clocio</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">10</span><span class="sec-t">Protocolos</span><span class="sec-tone">Fundo azul-escuro</span></div>
+    <div class="sec-body">
+      <p class="real" style="text-align:center"><b>Protocolos eficientes, desenvolvido para entregar mais
+        desempenho e resultados consistentes no seu rebanho.</b></p>
+      <div class="tabs" style="margin-top:18px;justify-content:center">
+        <span class="tab on">Vacas de leite</span>
+        <span class="tab">Vacas de corte (anestro)</span>
+        <span class="tab">Novilhas (ciclando)</span>
+        <span class="tab">Indução de ciclicidade</span>
+      </div>
+      <div class="tl">
+        <div><b>Sincroben + GnRH</b><div class="bar"></div><span>Dia 0</span></div>
+        <div><b>Clocio</b><div class="bar"></div><span>Dia 7</span></div>
+        <div><b>Clocio, retirada</b><div class="bar"></div><span>Dia 8</span></div>
+        <div><b>IATF + GnRH</b><div class="bar"></div><span>Dia 10</span></div>
+      </div>
+      <div style="text-align:center;margin-top:24px">
+        <span class="btn">Fale com nossa equipe de consultores</span>
+        <div class="txt m" style="margin:8px auto 0"></div>
+      </div>
+      <p class="nota"><b>Intenção:</b> os quatro protocolos em abas, um de cada vez. No celular a linha do
+        tempo vira lista vertical. A chamada aqui é para falar com o consultor, não para baixar.</p>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="sec dark">
+    <div class="sec-bar"><span class="sec-n">11</span><span class="sec-t">A Bimeda</span><span class="sec-tone">Fundo azul-escuro</span></div>
+    <div class="sec-body">
+      <div class="row row-side">
+        <div>
+          <p class="real"><b>Excelência global em saúde animal</b></p>
+          <div class="txt l"></div><div class="txt l"></div><div class="txt m"></div>
+          <div class="txt l" style="margin-top:10px"></div><div class="txt m"></div>
+        </div>
+        <div class="ph" style="height:200px">Foto da linha de envase</div>
+      </div>
+      <div class="row row-6" style="margin-top:24px;gap:0">
+        <div class="num"><b>+65</b><span>anos de história</span></div>
+        <div class="num"><b>+80</b><span>países</span></div>
+        <div class="num"><b>8</b><span>centros de P&amp;D</span></div>
+        <div class="num"><b>7</b><span>laboratórios regulatórios</span></div>
+        <div class="num"><b>9</b><span>fábricas</span></div>
+        <div class="num"><b>6</b><span>países de produção</span></div>
+      </div>
+      <p class="nota"><b>Intenção:</b> os grandes números da empresa, como na página 2 do folheto, fechando o
+        argumento institucional antes da conversão.</p>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="sec">
+    <div class="sec-bar"><span class="sec-n">12</span><span class="sec-t">Conversão</span><span class="sec-tone">Fundo cinza-claro</span></div>
+    <div class="sec-body">
+      <div class="row row-form">
+        <div>
+          <p class="real"><b>Leve a linha Bimeda Reprodução para o curral</b></p>
+          <div class="txt l"></div><div class="txt m"></div>
+          <ul class="list" style="margin-top:12px">
+            <li>Fichas técnicas dos 5 produtos</li>
+            <li>4 protocolos completos, dia a dia</li>
+            <li>Gráficos e referências dos estudos</li>
+          </ul>
+        </div>
+        <div>
+          <div class="field lbl">Como podemos ajudar?</div><div class="field"></div>
+          <div class="field lbl">Nome completo</div><div class="field"></div>
+          <div class="field lbl">E-mail</div><div class="field"></div>
+          <div class="row row-2" style="gap:10px">
+            <div><div class="field lbl">Telefone</div><div class="field"></div></div>
+            <div><div class="field lbl">Estado</div><div class="field"></div></div>
+          </div>
+          <div class="field lbl">Perfil</div><div class="field"></div>
+          <div class="txt m" style="margin:12px 0"></div>
+          <span class="btn" style="width:100%">Enviar</span>
+        </div>
+      </div>
+      <p class="nota"><b>Intenção:</b> um formulário só atende às duas chamadas da página. O campo de topo
+        separa quem quer o folheto de quem quer falar com um consultor, e o lead vai para o RD Station.</p>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="sec">
+    <div class="sec-bar"><span class="sec-n">13</span><span class="sec-t">Referências e rodapé</span><span class="sec-tone">Rodapé escuro</span></div>
+    <div class="sec-body">
+      <p class="cap">Referências dos estudos e aviso de uso veterinário</p>
+      <div class="txt l"></div><div class="txt m"></div>
+      <div class="row row-3" style="margin-top:22px">
+        <div class="ph" style="height:60px">Logo Bimeda</div>
+        <div><div class="txt m"></div><div class="txt s"></div><div class="txt s"></div></div>
+        <div><div class="txt m"></div><div class="txt s"></div><div class="txt s"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Communitas Com. para Bimeda</span>
+    <span>Estrutura para validação · v1</span>
+  </div>
+
+</div>
+</body>
+</html>
