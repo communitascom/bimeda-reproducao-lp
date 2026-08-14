@@ -1,0 +1,3 @@
+# Página em aprovação. Não indexar.
+User-agent: *
+Disallow: /
