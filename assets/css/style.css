@@ -165,6 +165,9 @@ p:last-child{margin-bottom:0}
 
 /* figuras e gráficos, sem moldura */
 .fig{margin:0}
+/* todos os gráficos têm viewBox de 760 e param de crescer aí, para que o texto
+   dentro deles renderize sempre no mesmo tamanho, de um gráfico para o outro */
+.fig .chart{max-width:760px; margin-inline:auto}
 .fig .chart svg{width:100%; height:auto}
 .fig figcaption{margin-top:14px; font-size:13.5px; line-height:1.45; color:var(--muted)}
 .fig figcaption strong{color:var(--ink); font-weight:700}
@@ -199,8 +202,8 @@ p:last-child{margin-bottom:0}
 
 .ecg-shot{margin:-10px auto -20px; max-width:1120px}
 .ecg-shot img{width:100%; height:auto}
-.ecg-bottom{display:grid; grid-template-columns:1fr 1.15fr; gap:56px; align-items:center}
-.ecg-bottom .dots li{font-size:19px}
+.dots-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px 40px; margin-bottom:38px}
+.dots-row li{font-size:18px}
 .ecg .pack{margin-top:30px}
 
 /* ==========================================================================
@@ -242,7 +245,7 @@ p:last-child{margin-bottom:0}
 .prod-dark .prod-copy > p{color:rgba(255,255,255,.82)}
 .bcaa-mol{max-height:150px !important; align-self:center}
 
-.figs{display:grid; grid-template-columns:1.35fr 1fr; gap:56px; margin-top:64px; align-items:end}
+.figs{display:grid; gap:56px; margin-top:64px}
 .fig-full{margin-top:56px}
 .fig-full img{width:100%}
 .fig-full figcaption{margin-top:16px; color:rgba(255,255,255,.6)}
@@ -359,7 +362,6 @@ p:last-child{margin-bottom:0}
 .social{margin-top:14px}
 .footer-bottom{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding-block:22px; border-top:1px solid rgba(255,255,255,.14); font-size:13px}
 .footer-bottom p{margin:0}
-.cod{color:rgba(255,255,255,.42); font-family:var(--display); letter-spacing:.08em}
 
 /* ==========================================================================
    RESPONSIVO
@@ -369,7 +371,6 @@ p:last-child{margin-bottom:0}
   .cta-form{max-width:560px}
   .inst{grid-template-columns:1fr; gap:34px}
   .inst-media{order:-1}
-  .figs{grid-template-columns:1fr; gap:44px}
   .bignums{grid-template-columns:repeat(3,1fr); gap:30px 0}
   .bignums li:nth-child(4){border-left:0}
   .index{grid-template-columns:repeat(2,1fr); border-left:1px solid var(--line)}
@@ -386,7 +387,7 @@ p:last-child{margin-bottom:0}
   .prod-top{grid-template-columns:1fr; gap:38px}
   .prod-shot{order:-1}
   .prod-shot img{max-height:300px}
-  .ecg-bottom{grid-template-columns:1fr; gap:34px}
+  .dots-row{grid-template-columns:1fr; gap:10px}
   .iatf-cols{grid-template-columns:1fr; gap:10px}
   .iatf-cols .dots:first-child{margin-bottom:10px}
 }
@@ -407,7 +408,7 @@ p:last-child{margin-bottom:0}
   .index li:nth-child(odd){border-left:0}
   .index a{padding:18px 0}
   .ecg-shot{padding-inline:14px}
-  .ecg-bottom .dots li{font-size:17px}
+  .dots-row li{font-size:16.5px}
   .iatf-cols .dots li{font-size:16.5px}
   .entrega-row,.entrega-row-3{grid-template-columns:1fr; gap:20px}
   .bignums{grid-template-columns:repeat(2,1fr); gap:28px 0; margin-top:44px}
