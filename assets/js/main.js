@@ -1,21 +1,20 @@
 /* ==========================================================================
-   Linha Bimeda Reprodução — LP
+   Linha Bimeda Reprodução | LP
    Protótipo · Communitas Com.
    ========================================================================== */
 (function () {
   'use strict';
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasIO = 'IntersectionObserver' in window;
 
   /* ---------- ano no rodapé ---------- */
   var ano = document.getElementById('ano');
   if (ano) ano.textContent = new Date().getFullYear();
 
-  /* ---------- header sticky ---------- */
+  /* ---------- header ---------- */
   var header = document.querySelector('.site-header');
-  function onScroll() {
-    header.classList.toggle('is-stuck', window.scrollY > 40);
-  }
+  function onScroll() { header.classList.toggle('is-stuck', window.scrollY > 40); }
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
@@ -36,46 +35,27 @@
     });
   }
 
-  /* ---------- reveal on scroll ---------- */
-  var reveals = document.querySelectorAll('.reveal');
-  if (reduceMotion || !('IntersectionObserver' in window)) {
-    reveals.forEach(function (el) { el.classList.add('is-in'); });
-  } else {
-    var revealObs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('is-in');
-        revealObs.unobserve(entry.target);
-      });
-    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-    reveals.forEach(function (el) { revealObs.observe(el); });
-  }
-
   /* ---------- contadores ---------- */
   function animateCount(el) {
     var target = parseFloat(el.dataset.count);
     var decimals = parseInt(el.dataset.decimals || '0', 10);
     var prefix = el.dataset.prefix || '';
     var suffix = el.dataset.suffix || '';
-    var duration = 1200;
+    var duration = 1100;
     var start = null;
 
-    function fmt(v) {
-      return prefix + v.toFixed(decimals).replace('.', ',') + suffix;
-    }
+    function fmt(v) { return prefix + v.toFixed(decimals).replace('.', ',') + suffix; }
     function step(ts) {
       if (start === null) start = ts;
       var p = Math.min((ts - start) / duration, 1);
-      var eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = fmt(target * eased);
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = fmt(target);
+      el.textContent = fmt(target * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(step); else el.textContent = fmt(target);
     }
     requestAnimationFrame(step);
   }
 
   var counters = document.querySelectorAll('[data-count]');
-  if (!reduceMotion && 'IntersectionObserver' in window) {
+  if (!reduceMotion && hasIO) {
     var countObs = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
@@ -118,19 +98,18 @@
 
   /* ---------- gráficos ---------- */
 
-  // linhas do gráfico de P4: converte data-points em polyline + pontos
+  // a curva de P4 é desenhada a partir dos data-points
   function drawSeries(svg) {
-    var X = [64, 137, 211, 285, 358, 432, 505, 579, 652, 726]; // 0h..192h
+    var X = [64, 137, 211, 285, 358, 432, 505, 579, 652, 726];
     var yZero = 280, yMax = 30, vMax = 4.5;
     function y(v) { return yZero - (v / vMax) * (yZero - yMax); }
 
     svg.querySelectorAll('.series').forEach(function (g) {
       var color = g.dataset.color;
       var vals = g.dataset.points.split(',').map(parseFloat);
-      var pts = vals.map(function (v, i) { return X[i] + ',' + y(v).toFixed(1); }).join(' ');
 
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-      line.setAttribute('points', pts);
+      line.setAttribute('points', vals.map(function (v, i) { return X[i] + ',' + y(v).toFixed(1); }).join(' '));
       line.setAttribute('fill', 'none');
       line.setAttribute('stroke', color);
       line.setAttribute('stroke-width', '2.4');
@@ -151,25 +130,24 @@
         var len = line.getTotalLength();
         line.style.strokeDasharray = len;
         line.style.strokeDashoffset = len;
-        line.style.transition = 'stroke-dashoffset 1.6s cubic-bezier(.22,.8,.3,1)';
+        line.style.transition = 'stroke-dashoffset 1.5s cubic-bezier(.22,.8,.3,1)';
         g.querySelectorAll('circle').forEach(function (c, i) {
           c.style.opacity = 0;
-          c.style.transition = 'opacity .35s ease ' + (0.5 + i * 0.09) + 's';
+          c.style.transition = 'opacity .3s ease ' + (0.45 + i * 0.08) + 's';
         });
       }
     });
   }
 
   function playChart(chart) {
-    chart.classList.add('is-drawn');
-
-    // barras
     chart.querySelectorAll('.bar').forEach(function (bar) {
       bar.setAttribute('y', bar.dataset.y);
       bar.setAttribute('height', bar.dataset.h);
     });
-
-    // linhas
+    chart.querySelectorAll('.bar-val, .bar-frac, .delta, .delta-lbl').forEach(function (el) {
+      if (!reduceMotion) el.style.transition = 'opacity .45s ease .5s';
+      el.style.opacity = 1;
+    });
     chart.querySelectorAll('polyline').forEach(function (l) { l.style.strokeDashoffset = 0; });
     chart.querySelectorAll('.series circle').forEach(function (c) { c.style.opacity = 1; });
   }
@@ -178,7 +156,7 @@
   if (p4) drawSeries(p4);
 
   var charts = document.querySelectorAll('.chart');
-  if (reduceMotion || !('IntersectionObserver' in window)) {
+  if (reduceMotion || !hasIO) {
     charts.forEach(playChart);
   } else {
     var chartObs = new IntersectionObserver(function (entries) {
@@ -191,14 +169,23 @@
     charts.forEach(function (c) { chartObs.observe(c); });
   }
 
-  /* ---------- formulário de download ----------
-     PROTÓTIPO: valida no cliente e dispara o download do PDF.
-     Para produção, trocar o bloco marcado abaixo pelo envio ao
-     RD Station (conversion_identifier) ou ao endpoint da Bimeda.
+  /* ---------- formulário ----------
+     PROTÓTIPO: valida no cliente, e no caso do folheto dispara o download do PDF.
+     Para produção, trocar o bloco marcado abaixo pelo envio ao RD Station
+     (conversion_identifier) ou ao endpoint da Bimeda.
   ------------------------------------------------------------------ */
   var PDF_URL = 'assets/docs/folheto-linha-bimeda-reproducao.pdf';
   var form = document.getElementById('form-folheto');
   var success = document.getElementById('form-success');
+  var successMsg = document.getElementById('success-msg');
+  var interesse = document.getElementById('f-interesse');
+
+  // os CTAs que pedem contato já chegam com o interesse certo selecionado
+  document.querySelectorAll('[data-interesse]').forEach(function (link) {
+    link.addEventListener('click', function () {
+      if (interesse) interesse.value = link.dataset.interesse;
+    });
+  });
 
   if (form) {
     form.addEventListener('submit', function (e) {
@@ -214,10 +201,10 @@
           el.removeAttribute('aria-invalid');
         }
       });
-
       if (invalid) { invalid.focus(); return; }
 
       var dados = Object.fromEntries(new FormData(form).entries());
+      var querFolheto = dados.interesse === 'Receber o folheto';
 
       /* === INÍCIO: substituir em produção ===================================
          Exemplo RD Station:
@@ -226,26 +213,34 @@
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
              token_rdstation: 'TOKEN',
-             identificador: 'lp-linha-reproducao-folheto',
+             identificador: 'lp-linha-reproducao',
              email: dados.email, nome: dados.nome, telefone: dados.telefone,
-             estado: dados.uf, cf_perfil: dados.perfil
+             estado: dados.uf, cf_perfil: dados.perfil, cf_interesse: dados.interesse
            })
          });
-         Analytics: gtag('event','generate_lead',{ form:'folheto-linha-reproducao' });
+         Analytics: gtag('event','generate_lead',{ form:'lp-linha-reproducao' });
       ====================================================================== */
       console.log('[protótipo] lead capturado:', dados);
       /* === FIM ============================================================ */
 
+      if (successMsg) {
+        successMsg.innerHTML = querFolheto
+          ? 'O download do folheto começou. Se não iniciar automaticamente, ' +
+            '<a href="' + PDF_URL + '" download>clique aqui para baixar</a>.'
+          : 'Um consultor da Bimeda vai entrar em contato com você.';
+      }
       form.hidden = true;
       success.hidden = false;
       success.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
 
-      var a = document.createElement('a');
-      a.href = PDF_URL;
-      a.download = 'Linha-Bimeda-Reproducao.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      if (querFolheto) {
+        var a = document.createElement('a');
+        a.href = PDF_URL;
+        a.download = 'Linha-Bimeda-Reproducao.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     });
   }
 })();
