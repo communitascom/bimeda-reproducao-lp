@@ -54,8 +54,13 @@ A LP final entra em `master` depois que a estrutura for aprovada e o layout, afi
 ## Pendências com a Bimeda
 
 1. **Pack shot do eCG BR em alta.** O recorte em uso na seção do produto e na foto de família da
-   linha foi extraído do PDF do folheto, onde a imagem tem 764x431 px. Serve nas duas aplicações
-   atuais, mas um arquivo de origem em resolução maior deixaria a peça pronta para qualquer uso.
+   linha foi extraído do PDF do folheto, onde a imagem tem 764x431 px, e teve a sombra difusa do
+   estúdio removida para bater com o restante da foto de família, que é recorte limpo. Sobram
+   414x327 px de produto. Serve nas duas aplicações atuais, mas um arquivo de origem em resolução
+   maior deixaria a peça pronta para qualquer uso.
+   O mesmo vale para a foto de família: a versão em uso tem 2000x761 px, e existe uma de
+   2780x1259 px em `BIMEDA/materiais enviados/Linha Reprodução/Bimeda Repro 2/(Gravação)/Produtos.png`,
+   que vale adotar se a montagem for refeita.
 2. **URLs das redes sociais.** Instagram, LinkedIn e Facebook estão presumidos a partir de `@bimedabrasil`.
 3. **Link da política de privacidade** para o aceite do formulário.
 4. **Hospedagem do vídeo.** Hoje o arquivo tem 18 MB e é servido pela própria página. Para produção,
