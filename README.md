@@ -74,6 +74,43 @@ A LP final entra em `master` depois que a estrutura for aprovada e o layout, afi
 
 ---
 
+## A foto de família da linha
+
+Não é mais um arquivo solto: é gerada por `tools/monta-foto-familia.py`, a partir dos pack shots
+originais do banco da Bimeda no Drive. Para regerar:
+
+```bash
+python3 tools/monta-foto-familia.py
+```
+
+**Regra dura do script: nenhum pixel de produto é alterado.** Os pack shots entram exatamente como
+vieram do banco, só recorte lossless (bbox do alfa) e reescala. Isso não é só cuidado, é a lição de
+uma tentativa que não deu certo: testamos compor a foto inteira no Higgsfield (Nano Banana 2), com
+os cinco pack shots reais como referência de imagem, e o resultado tinha luz e sombra ótimas, mas
+reescrevia o texto miúdo dos rótulos, e reescrevia errado ("ECC, PHEC" no lugar de "ECG, PMSG",
+"USG VETERINÁRIO" no lugar de "USO VETERINÁRIO", dosagem trocada no Sincroben). Para produto
+veterinário regulado isso é inaceitável, então a montagem final é 100% compositing de pixel real,
+sem generativa nenhuma tocando produto. Também testamos gerar só o fundo (uma chapa de estúdio vazia
+via IA) e compor os produtos reais por cima; descartado por motivo diferente, ficou "montado" demais
+numa página que já é branca do início ao fim. O fundo final é branco puro.
+
+O que o script resolve:
+
+- **Ordem.** Os produtos aparecem na mesma sequência do texto da seção e das seções da página:
+  eCG BR, Biprogest, Energect FC, Sincroben, Clocio.
+- **Escala.** As alturas relativas não são inventadas: vêm da própria foto que a Bimeda já aprovou
+  (a que estava no ar antes desta rodada), medidas por altura sólida de cada cartucho. O eCG, que
+  não existia naquela foto, é a única estimativa visual do script.
+- **Sombra.** Cada pack shot vem do Drive com a sombra de estúdio do próprio ensaio gravada no
+  arquivo, cada ensaio com uma luz diferente. A função `sombra_segura` apaga essa sombra solta sem
+  nunca tocar em nada a menos de um halo de proteção ao redor de qualquer pixel opaco do produto,
+  isso é o que garante que texto e detalhe fino nunca são cortados por engano. Por cima entra uma
+  única sombra de contato procedural, a mesma luz para todos os produtos.
+- **Aplicador do Biprogest.** Ficou dentro desta vez (na primeira tentativa da rodada anterior tinha
+  sido cortado). Ele é a peça mais larga do grupo, então o espaçamento entre Biprogest e Energect
+  precisa ser bem mais fechado que os outros (`folga: -330`) para compensar o vão vazio à direita da
+  bolsa, onde só o cabo fino do aplicador passa.
+
 ## Conteúdo
 
 Todo o texto, os dados e os protocolos vieram do folheto
