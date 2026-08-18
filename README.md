@@ -58,9 +58,8 @@ A LP final entra em `master` depois que a estrutura for aprovada e o layout, afi
    estúdio removida para bater com o restante da foto de família, que é recorte limpo. Sobram
    414x327 px de produto. Serve nas duas aplicações atuais, mas um arquivo de origem em resolução
    maior deixaria a peça pronta para qualquer uso.
-   O mesmo vale para a foto de família: a versão em uso tem 2000x761 px, e existe uma de
-   2780x1259 px em `BIMEDA/materiais enviados/Linha Reprodução/Bimeda Repro 2/(Gravação)/Produtos.png`,
-   que vale adotar se a montagem for refeita.
+   É a única peça da foto de família que não vem de pack shot em alta: as outras quatro saem de
+   arquivos de 3.000 a 7.600 px do banco da Bimeda.
 2. **URLs das redes sociais.** Instagram, LinkedIn e Facebook estão presumidos a partir de `@bimedabrasil`.
 3. **Link da política de privacidade** para o aceite do formulário.
 4. **Hospedagem do vídeo.** Hoje o arquivo tem 18 MB e é servido pela própria página. Para produção,
@@ -73,6 +72,29 @@ A LP final entra em `master` depois que a estrutura for aprovada e o layout, afi
   download do PDF.
 
 ---
+
+## A foto de família da linha
+
+Ela não é mais um arquivo solto: é gerada por `tools/monta-foto-familia.py`, que monta os cinco
+produtos a partir dos pack shots originais do banco da Bimeda no Drive. Para regerar:
+
+```bash
+python3 tools/monta-foto-familia.py
+```
+
+O que o script resolve, e por que ele existe:
+
+- **Ordem.** Os produtos aparecem na mesma sequência do texto da seção e das seções da página:
+  eCG BR, Biprogest, Energect FC, Sincroben, Clocio.
+- **Escala.** Nenhum pack shot está em escala real entre si. As alturas são derivadas do tamanho
+  real de cada embalagem com uma compressão (expoente 0,55), que é o que reproduz a proporção da
+  foto antiga sem deixar o Clocio minúsculo ao lado do Energect de 1 L.
+- **Sombra.** Cada pack shot vem do Drive com a sombra de estúdio do próprio ensaio gravada no
+  arquivo, e cada ensaio tinha uma luz diferente. O script apaga essas sombras e devolve uma só,
+  de contato, discreta, todas da mesma luz (alta, pela esquerda).
+- **Aplicador do Biprogest.** Ficou de fora. Ele é a única peça deitada no chão, com a perspectiva
+  do ensaio dele, e não assenta na linha de chão comum. Para trazê-lo de volta, é trocar o arquivo
+  do Biprogest por `Embalagem + Produto Biprogest.png` na lista `PECAS`.
 
 ## Conteúdo
 

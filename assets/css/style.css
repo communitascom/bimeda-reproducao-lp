@@ -207,7 +207,7 @@ p:last-child{margin-bottom:0}
    A LINHA
    ========================================================================== */
 .lineup{margin-bottom:44px}
-.lineup img{margin-inline:auto; max-height:340px; width:auto; object-fit:contain}
+.lineup img{margin-inline:auto; max-height:360px; width:auto; object-fit:contain}
 .index{
   list-style:none; display:grid; grid-template-columns:repeat(5,1fr);
   border-top:1px solid var(--line);
