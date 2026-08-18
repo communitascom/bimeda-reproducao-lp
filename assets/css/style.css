@@ -112,9 +112,9 @@ p:last-child{margin-bottom:0}
     linear-gradient(90deg, rgba(8,26,58,.88) 0%, rgba(8,26,58,.15) 68%);
 }
 .hero-inner{padding-top:calc(var(--header-h) + 74px); padding-bottom:60px; max-width:860px}
-.hero-logo{width:clamp(190px, 24vw, 290px); height:auto; margin-bottom:34px}
+.hero-logo{width:clamp(152px, 19.2vw, 232px); height:auto; margin-bottom:34px}
 .hero h1{
-  font-family:var(--display); font-weight:600; font-size:clamp(32px, 4.4vw, 54px);
+  font-family:var(--display); font-weight:600; font-size:clamp(27px, 3.74vw, 46px);
   line-height:1.06; color:#fff; margin:0 0 22px;
 }
 .hero h1 em{font-style:normal; color:var(--blue-400); font-weight:700}
@@ -133,11 +133,17 @@ p:last-child{margin-bottom:0}
 .band{padding-block:clamp(58px, 7vw, 92px)}
 .band-soft{background:var(--bg-soft)}
 .band-dark{background:var(--navy-900); color:#fff}
+/* o bloco do video ganha faixa propria, para nao encostar no tom da abertura */
+.band-video{
+  background:linear-gradient(180deg, #0F3D80 0%, #0B2E63 100%); color:#fff;
+  border-top:1px solid rgba(255,255,255,.14);
+}
+.band-video .lead{color:rgba(255,255,255,.8)}
 .band-navy{background:var(--navy-800); color:#fff}
 
 .head{max-width:820px; margin-bottom:46px}
 .head-center{margin-inline:auto; text-align:center}
-.band h2{font-family:var(--display); font-weight:600; font-size:clamp(30px, 4vw, 46px); line-height:1.04}
+.band h2{font-family:var(--display); font-weight:600; font-size:clamp(26px, 3.4vw, 39px); line-height:1.04}
 .head h2{margin-bottom:16px}
 .lead{color:var(--muted)}
 .band-dark .lead,.band-navy .lead{color:rgba(255,255,255,.8)}
@@ -181,18 +187,17 @@ p:last-child{margin-bottom:0}
    eCG BR
    ========================================================================== */
 .ecg{
-  /* o degradê acompanha o fundo do próprio pack shot, que entra sem moldura */
   background:linear-gradient(180deg, #0A5A8E 0%, #0078AF 38%, #0078AF 56%, #006B98 100%);
   color:#fff; padding-bottom:clamp(46px,6vw,70px);
 }
 .ecg-title{
-  font-family:var(--display); font-weight:500; font-size:clamp(32px, 4.6vw, 54px); line-height:1.05;
+  font-family:var(--display); font-weight:500; font-size:clamp(27px, 3.91vw, 46px); line-height:1.05;
   max-width:940px; margin-bottom:22px;
 }
 .ecg-title strong{font-weight:700}
 .ecg-lead{max-width:940px; color:rgba(255,255,255,.9)}
 
-.ecg-shot{margin:-10px auto -20px; max-width:1120px}
+.ecg-shot{margin:-10px auto 0; max-width:680px}
 .ecg-shot img{width:100%; height:auto}
 .dots-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px 40px; margin-bottom:38px}
 .dots-row li{font-size:18px}
@@ -225,7 +230,7 @@ p:last-child{margin-bottom:0}
    PRODUTOS
    ========================================================================== */
 .prod-top{display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center}
-.prod-copy h2{font-family:var(--display); font-size:clamp(40px,5vw,60px); font-weight:600; line-height:1; margin-bottom:6px; color:var(--accent)}
+.prod-copy h2{font-family:var(--display); font-size:clamp(34px,4.25vw,51px); font-weight:600; line-height:1; margin-bottom:6px; color:var(--accent)}
 .prod-sub{font-size:15px; font-weight:600; letter-spacing:.02em; color:var(--muted); margin-bottom:20px}
 .prod-copy > p{color:var(--muted); margin-bottom:20px}
 .prod-shot{display:flex; justify-content:center; align-items:flex-end; gap:22px}
@@ -267,7 +272,7 @@ p:last-child{margin-bottom:0}
 .tab.is-active{background:#fff; color:var(--navy-800); border-color:#fff}
 
 .tabpanel{background:rgba(255,255,255,.06); padding:clamp(24px,4vw,44px)}
-.proto-title{font-family:var(--display); font-size:clamp(26px,3.2vw,36px); font-weight:600; color:#fff; margin-bottom:32px; text-align:center}
+.proto-title{font-family:var(--display); font-size:clamp(22px,2.72vw,31px); font-weight:600; color:#fff; margin-bottom:32px; text-align:center}
 .proto-title em{font-style:normal; font-weight:400; color:rgba(255,255,255,.68)}
 
 .timeline{list-style:none; display:grid; grid-template-columns:var(--cols)}
@@ -295,7 +300,7 @@ p:last-child{margin-bottom:0}
    ========================================================================== */
 .band-inst{background:linear-gradient(170deg, var(--navy-800) 0%, var(--navy-900) 100%)}
 .inst{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center}
-.inst-copy h2{font-family:var(--display); font-size:clamp(30px,4vw,46px); font-weight:600; margin-bottom:22px}
+.inst-copy h2{font-family:var(--display); font-size:clamp(26px,3.4vw,39px); font-weight:600; margin-bottom:22px}
 .inst-copy p{color:rgba(255,255,255,.82)}
 .inst-copy strong{color:#fff}
 
