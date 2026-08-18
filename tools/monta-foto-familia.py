@@ -7,16 +7,27 @@ funcao de sombra so mexe em pixels comprovadamente fora de um halo de
 protecao ao redor de qualquer pixel opaco, entao rotulo, texto e detalhe
 fino nunca sao tocados.
 
-O fundo e branco puro, igual ao resto do site. Foi testado gerar uma chapa
-de estudio via IA (Higgsfield / Nano Banana) para servir de fundo, mas o
-resultado ficou "montado" demais numa pagina que ja e branca do começo ao
-fim: descartado. A propria tentativa de IA compor os produtos foi
-descartada antes disso, por um motivo mais serio: o modelo reescreve texto
-pequeno de rotulo, e reescreve errado (viu-se "ECC, PHEC" no lugar de
-"ECG, PMSG", "USG VETERINARIO" no lugar de "USO VETERINARIO", dosagem
-trocada). Produto veterinario regulado nao pode correr esse risco, entao a
-montagem final e 100% compositing de pixel real, sem generativa nenhuma
-tocando produto.
+O fundo e branco puro, igual ao resto do site. Duas vias generativas foram
+testadas e descartadas antes desta: (1) compor os cinco produtos inteiros
+no Higgsfield (Nano Banana 2), com os pack shots reais como referencia de
+imagem, luz e sombra saiam otimas mas o modelo reescrevia o texto miudo do
+rotulo, e reescrevia errado ("ECC, PHEC" no lugar de "ECG, PMSG", "USG
+VETERINARIO" no lugar de "USO VETERINARIO", dosagem trocada no Sincroben);
+(2) gerar so uma chapa de estudio vazia via IA para servir de fundo, e
+compor os produtos reais por cima, descartado por deixar a composicao
+"montada" demais numa pagina que ja e branca do inicio ao fim. A montagem
+final e 100% compositing de pixel real, sem generativa nenhuma tocando
+produto.
+
+Posicionamento: nao ha numero magico de espacamento por par (isso ja foi
+tentado e gerou vao morto enorme entre Biprogest e Energect, porque a
+largura da caixa delimitadora do Biprogest inclui o aplicador, um apendice
+fino e diagonal, bem mais largo que o saco em si). Em vez disso, cada
+produto e encostado no anterior calculando, linha por linha no eixo Y do
+canvas final, a borda visual real da silhueta de cada um (ver
+`perfil_esq_dir`), com uma unica constante `GAP` de sobreposicao leve,
+igual para todo par. O resultado e produtos encostados como numa mesa de
+verdade, sem gap arbitrario e sem numero ajustado no olho por peca.
 
 Proporcao entre os produtos: nao inventada. Vem da propria foto que a
 Bimeda ja aprovou (a que estava no ar antes desta rodada), medida por
@@ -35,19 +46,19 @@ AQUI = os.path.dirname(__file__)
 SAIDA = os.path.join(AQUI, '..', 'assets', 'img')
 
 H, BASE = 1050, 900
+REF_H = 700   # altura de referencia do Energect na arte final, em px
+GAP = -16     # negativo = leve sobreposicao de contato entre pecas vizinhas, mesma pra todo par
 
 # alturas medidas na foto ja aprovada pelo cliente (energect = referencia 601px = 1.0)
 #   biprogest 708/601=1.178 | clocio-caixa 512/601=0.852 | sincroben-caixa 426/601=0.709
-REF_H = 700  # altura de referencia do Energect na arte final, em px
-
 PECAS = [
-  # chave        arquivo                                                                razao  folga  avanco
-  ('ecg',        os.path.join(AQUI, 'ecg-recorte-limpo.png'),                           0.62,  -70,  14),
-  ('biprogest',  B+'/imagens/produtos/Biprogest/Embalagem + Produto Biprogest.png',      1.178, -330,  0),
+  # chave        arquivo                                                                 razao  avanco
+  ('ecg',        os.path.join(AQUI, 'ecg-recorte-limpo.png'),                            0.62,   14),
+  ('biprogest',  B+'/imagens/produtos/Biprogest/Embalagem + Produto Biprogest.png',       1.178,   0),
   ('energect',   B+'/materiais enviados/2025/Energect/Materiais do Folheto Energect/'
-                   'Cartucho - Energect FC 1000 mL - Direita.png',                      1.000, -46,   0),
-  ('sincroben',  B+'/imagens/produtos/Sincroben/Frasco + Cartucho - Sincroben 50 mL.png',0.709, -58,  12),
-  ('clocio',     B+'/imagens/produtos/Clocio/Frasco + Cartucho - Clocio 20 mL.png',      0.852,   0,  20),
+                   'Cartucho - Energect FC 1000 mL - Direita.png',                       1.000,   0),
+  ('sincroben',  B+'/imagens/produtos/Sincroben/Frasco + Cartucho - Sincroben 50 mL.png', 0.709,  12),
+  ('clocio',     B+'/imagens/produtos/Clocio/Frasco + Cartucho - Clocio 20 mL.png',       0.852,  20),
 ]
 ORDEM_Z = ['biprogest', 'energect', 'ecg', 'sincroben', 'clocio']
 
@@ -93,8 +104,24 @@ def sombra_segura(im, protecao_px):
     out[:, :, 3] = novo
     return Image.fromarray(out)
 
+def perfil_esq_dir(im):
+    """Para cada linha local (y), a coluna mais a esquerda e mais a direita
+    com pixel opaco, ou -1 se a linha nao tem conteudo. E o que permite
+    encostar duas silhuetas de verdade em vez de usar a largura da caixa
+    delimitadora, que para pecas com apendice fino (como o aplicador do
+    Biprogest) e bem maior que o produto em si."""
+    a = np.array(im)[:, :, 3] > 190
+    esq = np.full(im.height, -1, dtype=int)
+    dir_ = np.full(im.height, -1, dtype=int)
+    for y in range(im.height):
+        xs = np.where(a[y])[0]
+        if len(xs):
+            esq[y] = xs.min()
+            dir_[y] = xs.max()
+    return esq, dir_
+
 unidades = []
-for chave, path, razao, folga, avanco in PECAS:
+for chave, path, razao, avanco in PECAS:
     im_orig = carregar_sem_tocar(path)
     protecao = max(6, round(im_orig.height * 0.012))
     im = sombra_segura(im_orig, protecao)
@@ -102,15 +129,33 @@ for chave, path, razao, folga, avanco in PECAS:
     alvo = REF_H * razao
     k = alvo / (bot - top)
     im2 = im.resize((max(1, round(im.width*k)), max(1, round(im.height*k))), Image.LANCZOS)
-    unidades.append(dict(chave=chave, im=im2, cart_bot=round(bot*k), folga=folga, avanco=avanco))
+    cart_bot = round(bot*k)
+    oy = BASE + avanco - cart_bot   # deslocamento vertical desta peca no canvas
+    esq, dir_ = perfil_esq_dir(im2)
+    unidades.append(dict(chave=chave, im=im2, oy=oy, esq=esq, dir_=dir_))
     print(f'{chave:10s} razao={razao:.3f}  tamanho final {im2.size}')
 
+# encaixa cada peca na anterior usando o perfil real, linha por linha, em coordenadas de canvas
 MARGEM = 60
-x = MARGEM
-for u in unidades:
-    u['x'] = x
-    x += u['im'].width + u['folga']
-W = x - unidades[-1]['folga'] + MARGEM
+unidades[0]['x'] = MARGEM
+for i in range(1, len(unidades)):
+    prev, cur = unidades[i-1], unidades[i]
+    y0 = max(prev['oy'], cur['oy'])
+    y1 = min(prev['oy'] + len(prev['dir_']), cur['oy'] + len(cur['esq']))
+    dx = None
+    for y in range(y0, y1):
+        pd = prev['dir_'][y - prev['oy']]
+        ce = cur['esq'][y - cur['oy']]
+        if pd < 0 or ce < 0:
+            continue
+        necessario = (prev['x'] + pd + GAP) - ce
+        dx = necessario if dx is None else max(dx, necessario)
+    if dx is None:
+        dx = prev['x'] + prev['im'].width + GAP
+    cur['x'] = dx
+
+ultimo = unidades[-1]
+W = ultimo['x'] + ultimo['im'].width + MARGEM
 
 canvas = Image.new('RGBA', (W, H), (255, 255, 255, 255))
 
@@ -128,7 +173,7 @@ for u in unidades:
     if not len(xs): continue
     cx0, cx1 = x0 + xs.min(), x0 + xs.max()
     largura = cx1 - cx0
-    y = BASE + u['avanco'] + (pe - u['cart_bot'])
+    y = u['oy'] + pe
     desloc = round(largura * 0.06)
     d.ellipse([cx0 + round(largura*0.04) + desloc, y - round(largura*0.04),
                cx1 - round(largura*0.04) + desloc, y + round(largura*0.05)], fill=255)
@@ -138,7 +183,7 @@ canvas.paste(Image.new('RGBA', (W, H), (58, 68, 86, 255)), (0, 0), sh)
 
 for chave in ORDEM_Z:
     u = next(u for u in unidades if u['chave'] == chave)
-    canvas.alpha_composite(u['im'], (u['x'], BASE + u['avanco'] - u['cart_bot']))
+    canvas.alpha_composite(u['im'], (u['x'], u['oy']))
 
 canvas = canvas.crop((0, 0, W, H))
 canvas.save(os.path.join(SAIDA, 'produtos-familia.png'), optimize=True)
