@@ -76,50 +76,50 @@ A LP final entra em `master` depois que a estrutura for aprovada e o layout, afi
 
 ## A foto de família da linha
 
-Não é mais um arquivo solto: é gerada por `tools/monta-foto-familia.py`, a partir dos pack shots
-originais do banco da Bimeda no Drive. Para regerar:
+O posicionamento final é **manual, no Photoshop**, não calculado por código. Depois de várias
+rodadas tentando acertar espaçamento e profundidade por algoritmo (histórico abaixo), o resultado
+seguia estranho aos olhos de quem entende de composição, o Junior pediu pra montar ele mesmo.
 
-```bash
-python3 tools/monta-foto-familia.py
-```
+**Fluxo atual:**
 
-**Regra dura do script: nenhum pixel de produto é alterado.** Os pack shots entram exatamente como
-vieram do banco, só recorte lossless (bbox do alfa) e reescala. Isso não é só cuidado, é a lição de
-uma tentativa que não deu certo: testamos compor a foto inteira no Higgsfield (Nano Banana 2), com
-os cinco pack shots reais como referência de imagem, e o resultado tinha luz e sombra ótimas, mas
-reescrevia o texto miúdo dos rótulos, e reescrevia errado ("ECC, PHEC" no lugar de "ECG, PMSG",
-"USG VETERINÁRIO" no lugar de "USO VETERINÁRIO", dosagem trocada no Sincroben). Para produto
-veterinário regulado isso é inaceitável, então a montagem final é 100% compositing de pixel real,
-sem generativa nenhuma tocando produto. Também testamos gerar só o fundo (uma chapa de estúdio vazia
-via IA) e compor os produtos reais por cima; descartado por motivo diferente, ficou "montado" demais
-numa página que já é branca do início ao fim. O fundo final é branco puro.
+1. `tools/exporta-psd-embalagens.py` prepara os 5 pack shots (recorte lossless, sombra de
+   estúdio solta removida, escala relativa) e exporta um PSD com uma camada por produto, sem
+   sobrepor e sem sombra, pronto pra arrastar.
+2. O Junior reposiciona as camadas à mão no Photoshop e salva por cima do mesmo arquivo:
+   `human-output/bimeda-linha-producao-embalagens.psd` (no Drive, fora do git, é `human-output/`).
+3. `tools/aplica-sombra-psd.py` lê esse PSD, adiciona só a sombra de contato (o PSD entregue não
+   tem, de propósito, pra não atrapalhar o ajuste manual) e gera `produtos-familia.png`/`.webp`.
+   Para regerar depois de reajustar o PSD:
 
-O que o script resolve:
+   ```bash
+   python3 tools/aplica-sombra-psd.py
+   ```
 
-- **Ordem.** Os produtos aparecem na mesma sequência do texto da seção e das seções da página:
-  eCG BR, Biprogest, Energect FC, Sincroben, Clocio.
-- **Composição em profundidade, não numa fileira só.** O Biprogest é o produto-herói, centralizado
-  e na frente. eCG e Energect ficam de propósito atrás dele (o Biprogest, pintado por cima, cobre a
-  parte de trás de cada um), não lado a lado com vão vazio entre eles. Sincroben e Clocio, no mesmo
-  tamanho, ficam encostados um no outro na frente, à direita.
-- **Duas formas de posicionar, cada uma para o problema certo.** Para eCG e Energect (que devem
-  ficar atrás, com sobreposição de propósito) o script usa deslocamento explícito, calculado pela
-  borda real do corpo do saco do Biprogest (função `borda_saco`), não pela caixa delimitadora, que
-  inclui o aplicador e é bem mais larga que o saco em si. Para Sincroben e Clocio (que devem só se
-  tocar, sem colidir) o script usa encaixe por silhueta (`encaixar`): calcula, linha por linha no
-  eixo Y do canvas final, a borda visual real de cada produto. As constantes `ECG_VISIVEL_PX` e
-  `ENERGECT_ESCONDIDO_FRAC` foram calibradas olhando o resultado, visível o bastante pra ler "eCG"
-  e "ENERGECT FC" por inteiro, escondido o bastante pra ler como atrás e não do lado.
-- **Escala.** Biprogest e Energect vêm da própria foto que a Bimeda já aprovou (a que estava no ar
-  antes desta rodada), medida por altura sólida de cada cartucho. Sincroben e Clocio, que tinham
-  tamanhos diferentes naquela foto, foram igualados a pedido do cliente. O eCG, que não existia
-  naquela foto, é a única estimativa visual do script, aumentado nesta rodada porque tinha ficado
-  pequeno demais.
-- **Sombra.** Cada pack shot vem do Drive com a sombra de estúdio do próprio ensaio gravada no
-  arquivo, cada ensaio com uma luz diferente. A função `sombra_segura` apaga essa sombra solta sem
-  nunca tocar em nada a menos de um halo de proteção ao redor de qualquer pixel opaco do produto,
-  isso é o que garante que texto e detalhe fino nunca são cortados por engano. Por cima entra uma
-  única sombra de contato procedural, a mesma luz para todos os produtos.
+**Regra dura, em qualquer uma das duas etapas: nenhum pixel de produto é alterado.** Os pack shots
+entram exatamente como vieram do banco da Bimeda, só recorte lossless (bbox do alfa) e reescala.
+Isso não é só cuidado, é a lição de uma tentativa que não deu certo: testamos compor a foto inteira
+no Higgsfield (Nano Banana 2), com os cinco pack shots reais como referência de imagem, e o
+resultado tinha luz e sombra ótimas, mas reescrevia o texto miúdo dos rótulos, e reescrevia errado
+("ECC, PHEC" no lugar de "ECG, PMSG", "USG VETERINÁRIO" no lugar de "USO VETERINÁRIO", dosagem
+trocada no Sincroben). Para produto veterinário regulado isso é inaceitável.
+
+**Bug de ambiente:** a versão instalada do `pytoshop` (1.2.1) não lê RLE, porque o submódulo
+`pytoshop/packbits.pyx` nunca foi compilado nesta máquina. `aplica-sombra-psd.py` usa `psd-tools`
+(`pip3 install psd-tools`) em vez disso, que lê PSD real do Photoshop sem esse problema.
+
+**Sombra.** Discretíssima de propósito, uma luz só (vem de cima à esquerda) pra não deixar os
+produtos "flutuando". A primeira versão nasceu estreita demais (a elipse ficava do tamanho da base
+do produto, então quase toda escondida embaixo dele) e ficou invisível; a versão final alarga a
+elipse além da silhueta do produto (`ALARGAMENTO`) pra ela realmente aparecer.
+
+### Histórico: as tentativas por código que não vingaram
+
+- **Fileira por silhueta**, encostando cada produto no vizinho pela borda visual real (não pela
+  caixa delimitadora): resolveu o vão morto entre peças, mas ainda ficava tudo numa linha só, sem
+  profundidade.
+- **Profundidade calculada**, com eCG e Energect posicionados atrás do Biprogest por fórmula: o
+  resultado tecnicamente fazia o que foi pedido, mas continuava "errado" pro olho, prova de que
+  esse tipo de decisão de composição precisa mesmo de alguém olhando, não de coordenada calculada.
 
 ## Conteúdo
 
