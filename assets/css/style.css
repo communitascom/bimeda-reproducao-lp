@@ -127,14 +127,6 @@ p:last-child{margin-bottom:0}
 .hero-in:nth-child(4){animation-delay:.18s}
 @keyframes heroIn{from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none}}
 
-.hero-stats{background:rgba(6,20,46,.72); border-top:1px solid rgba(255,255,255,.16)}
-.stats-grid{display:grid; grid-template-columns:repeat(4,1fr); padding-block:26px}
-.stat{text-align:center; padding-inline:14px}
-.stat + .stat{border-left:1px solid rgba(255,255,255,.18)}
-.stat-num{display:block; font-family:var(--display); font-weight:700; font-size:clamp(30px,4vw,44px); color:#fff; line-height:1}
-.stat-lbl{display:block; margin-top:8px; font-size:13.5px; line-height:1.35; color:rgba(255,255,255,.74)}
-.stat-lbl sup{font-size:9px; color:var(--blue-400)}
-
 /* ==========================================================================
    FAIXAS
    ========================================================================== */
@@ -278,7 +270,7 @@ p:last-child{margin-bottom:0}
 .proto-title{font-family:var(--display); font-size:clamp(26px,3.2vw,36px); font-weight:600; color:#fff; margin-bottom:32px; text-align:center}
 .proto-title em{font-style:normal; font-weight:400; color:rgba(255,255,255,.68)}
 
-.timeline{list-style:none; display:grid; grid-template-columns:repeat(var(--steps),1fr)}
+.timeline{list-style:none; display:grid; grid-template-columns:var(--cols)}
 .tl-step{display:flex; flex-direction:column; padding-right:6px}
 .tl-day{order:3; font-family:var(--display); font-size:22px; font-weight:600; color:#fff; margin-top:12px; padding-left:2px}
 .tl-act{order:1; font-size:14.5px; font-weight:600; color:#fff; line-height:1.35; min-height:72px; display:flex; flex-direction:column; justify-content:flex-end; padding-bottom:12px}
@@ -400,8 +392,6 @@ p:last-child{margin-bottom:0}
   .hero::before{background:linear-gradient(180deg, rgba(8,26,58,.9) 0%, rgba(8,26,58,.5) 26%, rgba(8,26,58,.86) 64%, rgba(8,26,58,.98) 100%)}
   .hero-logo{margin-bottom:26px}
   .hero-actions .btn{flex:1 1 100%}
-  .stats-grid{grid-template-columns:repeat(2,1fr); gap:22px 0; padding-block:24px}
-  .stat:nth-child(3){border-left:0}
   .lineup img{max-height:190px}
   .index{grid-template-columns:1fr; border-left:0}
   .index li + li{border-left:0}

@@ -1,4 +1,4 @@
-# Linha Bimeda Reprodução — Landing Page
+# Linha Bimeda Reprodução | Landing Page
 
 **Communitas Com.** para Bimeda · Peça de origem: `BR_MR26_0024`
 Destino final: `saudeanimal.bimeda.com.br`
@@ -7,7 +7,7 @@ Destino final: `saudeanimal.bimeda.com.br`
 
 ## Em validação agora: a estrutura
 
-👉 **[`wireframe/index.html`](wireframe/index.html)** — versão de baixa fidelidade da LP, para o cliente
+👉 **[`wireframe/index.html`](wireframe/index.html)** é a versão de baixa fidelidade da LP, para o cliente
 validar a **ordem das seções, o conteúdo de cada uma e a hierarquia da informação**. Cores, fotos e
 tipografia finais não fazem parte desta etapa.
 
@@ -21,7 +21,7 @@ python3 -m http.server 4321
 
 | # | Seção | O que entra |
 |---|-------|-------------|
-| 01 | Abertura | Logo da linha, assinatura, 2 CTAs, faixa de números |
+| 01 | Abertura | Logo da linha, assinatura, 2 CTAs |
 | 02 | Vídeo institucional | Vídeo de 1:40 e três destaques |
 | 03 | eCG BR | O lançamento, com o pack shot inteiro e o gráfico de folículos |
 | 04 | A linha completa | Foto de família e índice dos 5 produtos |
@@ -53,8 +53,9 @@ A LP final entra em `master` depois que a estrutura for aprovada e o layout, afi
 
 ## Pendências com a Bimeda
 
-1. **Pack shot do eCG BR** em PNG com fundo transparente. O que está em uso foi extraído do PDF do
-   folheto e teve o fundo reconstruído.
+1. **Pack shot do eCG BR em alta.** O recorte em uso na seção do produto e na foto de família da
+   linha foi extraído do PDF do folheto, onde a imagem tem 764x431 px. Serve nas duas aplicações
+   atuais, mas um arquivo de origem em resolução maior deixaria a peça pronta para qualquer uso.
 2. **URLs das redes sociais.** Instagram, LinkedIn e Facebook estão presumidos a partir de `@bimedabrasil`.
 3. **Link da política de privacidade** para o aceite do formulário.
 4. **Hospedagem do vídeo.** Hoje o arquivo tem 18 MB e é servido pela própria página. Para produção,
