@@ -98,18 +98,28 @@ O que o script resolve:
 
 - **Ordem.** Os produtos aparecem na mesma sequência do texto da seção e das seções da página:
   eCG BR, Biprogest, Energect FC, Sincroben, Clocio.
-- **Escala.** As alturas relativas não são inventadas: vêm da própria foto que a Bimeda já aprovou
-  (a que estava no ar antes desta rodada), medidas por altura sólida de cada cartucho. O eCG, que
-  não existia naquela foto, é a única estimativa visual do script.
+- **Composição em profundidade, não numa fileira só.** O Biprogest é o produto-herói, centralizado
+  e na frente. eCG e Energect ficam de propósito atrás dele (o Biprogest, pintado por cima, cobre a
+  parte de trás de cada um), não lado a lado com vão vazio entre eles. Sincroben e Clocio, no mesmo
+  tamanho, ficam encostados um no outro na frente, à direita.
+- **Duas formas de posicionar, cada uma para o problema certo.** Para eCG e Energect (que devem
+  ficar atrás, com sobreposição de propósito) o script usa deslocamento explícito, calculado pela
+  borda real do corpo do saco do Biprogest (função `borda_saco`), não pela caixa delimitadora, que
+  inclui o aplicador e é bem mais larga que o saco em si. Para Sincroben e Clocio (que devem só se
+  tocar, sem colidir) o script usa encaixe por silhueta (`encaixar`): calcula, linha por linha no
+  eixo Y do canvas final, a borda visual real de cada produto. As constantes `ECG_VISIVEL_PX` e
+  `ENERGECT_ESCONDIDO_FRAC` foram calibradas olhando o resultado, visível o bastante pra ler "eCG"
+  e "ENERGECT FC" por inteiro, escondido o bastante pra ler como atrás e não do lado.
+- **Escala.** Biprogest e Energect vêm da própria foto que a Bimeda já aprovou (a que estava no ar
+  antes desta rodada), medida por altura sólida de cada cartucho. Sincroben e Clocio, que tinham
+  tamanhos diferentes naquela foto, foram igualados a pedido do cliente. O eCG, que não existia
+  naquela foto, é a única estimativa visual do script, aumentado nesta rodada porque tinha ficado
+  pequeno demais.
 - **Sombra.** Cada pack shot vem do Drive com a sombra de estúdio do próprio ensaio gravada no
   arquivo, cada ensaio com uma luz diferente. A função `sombra_segura` apaga essa sombra solta sem
   nunca tocar em nada a menos de um halo de proteção ao redor de qualquer pixel opaco do produto,
   isso é o que garante que texto e detalhe fino nunca são cortados por engano. Por cima entra uma
   única sombra de contato procedural, a mesma luz para todos os produtos.
-- **Aplicador do Biprogest.** Ficou dentro desta vez (na primeira tentativa da rodada anterior tinha
-  sido cortado). Ele é a peça mais larga do grupo, então o espaçamento entre Biprogest e Energect
-  precisa ser bem mais fechado que os outros (`folga: -330`) para compensar o vão vazio à direita da
-  bolsa, onde só o cabo fino do aplicador passa.
 
 ## Conteúdo
 

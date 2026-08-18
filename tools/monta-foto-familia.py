@@ -19,20 +19,26 @@ compor os produtos reais por cima, descartado por deixar a composicao
 final e 100% compositing de pixel real, sem generativa nenhuma tocando
 produto.
 
-Posicionamento: nao ha numero magico de espacamento por par (isso ja foi
-tentado e gerou vao morto enorme entre Biprogest e Energect, porque a
-largura da caixa delimitadora do Biprogest inclui o aplicador, um apendice
-fino e diagonal, bem mais largo que o saco em si). Em vez disso, cada
-produto e encostado no anterior calculando, linha por linha no eixo Y do
-canvas final, a borda visual real da silhueta de cada um (ver
-`perfil_esq_dir`), com uma unica constante `GAP` de sobreposicao leve,
-igual para todo par. O resultado e produtos encostados como numa mesa de
-verdade, sem gap arbitrario e sem numero ajustado no olho por peca.
+Composicao: o Biprogest e o produto-heroi, centralizado. eCG e Energect
+ficam DE PROPOSITO atras dele (sobreposicao explicita, nao por evitar
+colisao: o Biprogest, pintado por cima, cobre a parte de tras). Sincroben
+e Clocio ficam no mesmo tamanho, encostados um no outro na frente, a
+direita, usando o encaixe por silhueta (esse sim evita colisao de
+verdade: calcula, linha por linha no eixo Y do canvas final, a borda
+visual real de cada produto, e nao a largura da caixa delimitadora, que
+para pecas com apendice fino e diagonal como o aplicador do Biprogest e
+bem maior que o produto em si).
 
-Proporcao entre os produtos: nao inventada. Vem da propria foto que a
-Bimeda ja aprovou (a que estava no ar antes desta rodada), medida por
-altura solida de cada cartucho. O eCG, que nao existia naquela foto, e a
-unica estimativa visual do script.
+As constantes ECG_VISIVEL_PX e ENERGECT_ESCONDIDO_FRAC foram calibradas
+olhando o resultado: visivel o bastante pra ler "eCG" e "ENERGECT FC"
+por inteiro, escondido o bastante pra ler como "atras" e nao "do lado".
+
+Proporcao entre os produtos: nao inventada, exceto onde o cliente pediu
+o contrario. Biprogest, Energect e a proporcao original vem da propria
+foto que a Bimeda ja aprovou antes desta rodada, medida por altura solida
+de cada cartucho. Sincroben e Clocio, que naquela foto tinham tamanhos
+diferentes, foram igualados a pedido do cliente. O eCG, que nao existia
+naquela foto, e a unica estimativa visual do script.
 
 Para regerar:
     python3 tools/monta-foto-familia.py
@@ -47,20 +53,21 @@ SAIDA = os.path.join(AQUI, '..', 'assets', 'img')
 
 H, BASE = 1050, 900
 REF_H = 700   # altura de referencia do Energect na arte final, em px
-GAP = -16     # negativo = leve sobreposicao de contato entre pecas vizinhas, mesma pra todo par
 
-# alturas medidas na foto ja aprovada pelo cliente (energect = referencia 601px = 1.0)
-#   biprogest 708/601=1.178 | clocio-caixa 512/601=0.852 | sincroben-caixa 426/601=0.709
-PECAS = [
-  # chave        arquivo                                                                 razao  avanco
-  ('ecg',        os.path.join(AQUI, 'ecg-recorte-limpo.png'),                            0.62,   14),
-  ('biprogest',  B+'/imagens/produtos/Biprogest/Embalagem + Produto Biprogest.png',       1.178,   0),
-  ('energect',   B+'/materiais enviados/2025/Energect/Materiais do Folheto Energect/'
-                   'Cartucho - Energect FC 1000 mL - Direita.png',                       1.000,   0),
-  ('sincroben',  B+'/imagens/produtos/Sincroben/Frasco + Cartucho - Sincroben 50 mL.png', 0.709,  12),
-  ('clocio',     B+'/imagens/produtos/Clocio/Frasco + Cartucho - Clocio 20 mL.png',       0.852,  20),
-]
-ORDEM_Z = ['biprogest', 'energect', 'ecg', 'sincroben', 'clocio']
+# chave -> (arquivo, razao de altura relativa ao Energect, avanco vertical em px)
+PECAS = {
+  'ecg':       (os.path.join(AQUI, 'ecg-recorte-limpo.png'), 0.85, 14),
+  'biprogest': (B+'/imagens/produtos/Biprogest/Embalagem + Produto Biprogest.png', 1.178, 0),
+  'energect':  (B+'/materiais enviados/2025/Energect/Materiais do Folheto Energect/'
+                  'Cartucho - Energect FC 1000 mL - Direita.png', 1.000, 0),
+  'sincroben': (B+'/imagens/produtos/Sincroben/Frasco + Cartucho - Sincroben 50 mL.png', 0.78, 12),
+  'clocio':    (B+'/imagens/produtos/Clocio/Frasco + Cartucho - Clocio 20 mL.png', 0.78, 20),
+}
+ECG_VISIVEL_PX = 710             # quanto do eCG fica visivel a esquerda do biprogest
+ENERGECT_ESCONDIDO_FRAC = 0.27   # fracao do energect que fica atras do biprogest
+GAP_FRENTE = -16                 # leve sobreposicao de contato entre pecas da frente (sincroben/clocio)
+
+ORDEM_Z = ['ecg', 'energect', 'biprogest', 'sincroben', 'clocio']  # pintura: ultimo = mais na frente
 
 def carregar_sem_tocar(path):
     """Recorte lossless (so bbox do alfa). Nenhum pixel de produto e alterado aqui."""
@@ -75,6 +82,15 @@ def cartucho(im):
     cols = np.where(tops <= tops.min() + 0.10*Hd)[0]
     ys = np.where(a[:, cols.min():cols.max()+1].any(axis=1))[0]
     return int(ys.min()), int(ys.max())
+
+def borda_saco(im, frac_topo=0.6):
+    """Borda esquerda e direita reais do corpo principal do saco do Biprogest
+    (sem o apendice fino do aplicador, que fica so na parte de baixo e alarga
+    a caixa delimitadora bem mais que o produto em si)."""
+    a = np.array(im)[:, :, 3] > 190
+    topo = a[:round(im.height*frac_topo)]
+    cols = np.where(topo.any(axis=0))[0]
+    return int(cols.min()), int(cols.max())
 
 def sombra_segura(im, protecao_px):
     """Apaga a sombra de estudio solta, sem nunca reduzir alfa de nada que
@@ -108,8 +124,7 @@ def perfil_esq_dir(im):
     """Para cada linha local (y), a coluna mais a esquerda e mais a direita
     com pixel opaco, ou -1 se a linha nao tem conteudo. E o que permite
     encostar duas silhuetas de verdade em vez de usar a largura da caixa
-    delimitadora, que para pecas com apendice fino (como o aplicador do
-    Biprogest) e bem maior que o produto em si."""
+    delimitadora."""
     a = np.array(im)[:, :, 3] > 190
     esq = np.full(im.height, -1, dtype=int)
     dir_ = np.full(im.height, -1, dtype=int)
@@ -120,26 +135,11 @@ def perfil_esq_dir(im):
             dir_[y] = xs.max()
     return esq, dir_
 
-unidades = []
-for chave, path, razao, avanco in PECAS:
-    im_orig = carregar_sem_tocar(path)
-    protecao = max(6, round(im_orig.height * 0.012))
-    im = sombra_segura(im_orig, protecao)
-    top, bot = cartucho(im)
-    alvo = REF_H * razao
-    k = alvo / (bot - top)
-    im2 = im.resize((max(1, round(im.width*k)), max(1, round(im.height*k))), Image.LANCZOS)
-    cart_bot = round(bot*k)
-    oy = BASE + avanco - cart_bot   # deslocamento vertical desta peca no canvas
-    esq, dir_ = perfil_esq_dir(im2)
-    unidades.append(dict(chave=chave, im=im2, oy=oy, esq=esq, dir_=dir_))
-    print(f'{chave:10s} razao={razao:.3f}  tamanho final {im2.size}')
-
-# encaixa cada peca na anterior usando o perfil real, linha por linha, em coordenadas de canvas
-MARGEM = 60
-unidades[0]['x'] = MARGEM
-for i in range(1, len(unidades)):
-    prev, cur = unidades[i-1], unidades[i]
+def encaixar(prev, cur, gap):
+    """Posiciona `cur` encostando na silhueta real de `prev`, sem colidir:
+    calcula, linha por linha, o deslocamento minimo que respeita `gap`
+    (negativo = leve sobreposicao) em toda a faixa de Y onde os dois tem
+    conteudo."""
     y0 = max(prev['oy'], cur['oy'])
     y1 = min(prev['oy'] + len(prev['dir_']), cur['oy'] + len(cur['esq']))
     dx = None
@@ -148,21 +148,61 @@ for i in range(1, len(unidades)):
         ce = cur['esq'][y - cur['oy']]
         if pd < 0 or ce < 0:
             continue
-        necessario = (prev['x'] + pd + GAP) - ce
+        necessario = (prev['x'] + pd + gap) - ce
         dx = necessario if dx is None else max(dx, necessario)
-    if dx is None:
-        dx = prev['x'] + prev['im'].width + GAP
-    cur['x'] = dx
+    return dx if dx is not None else prev['x'] + prev['im'].width + gap
 
-ultimo = unidades[-1]
-W = ultimo['x'] + ultimo['im'].width + MARGEM
+unidades = {}
+for chave, (path, razao, avanco) in PECAS.items():
+    im_orig = carregar_sem_tocar(path)
+    protecao = max(6, round(im_orig.height * 0.012))
+    im = sombra_segura(im_orig, protecao)
+    top, bot = cartucho(im)
+    alvo = REF_H * razao
+    k = alvo / (bot - top)
+    im2 = im.resize((max(1, round(im.width*k)), max(1, round(im.height*k))), Image.LANCZOS)
+    cart_bot = round(bot*k)
+    oy = BASE + avanco - cart_bot
+    esq, dir_ = perfil_esq_dir(im2)
+    unidades[chave] = dict(chave=chave, im=im2, oy=oy, esq=esq, dir_=dir_)
+    print(f'{chave:10s} razao={razao:.3f}  tamanho final {im2.size}')
+
+MARGEM = 60
+biprogest = unidades['biprogest']
+saco_esq, saco_dir = borda_saco(biprogest['im'])
+
+# biprogest: reserva espaco a esquerda para o eCG espiar ate a borda real do saco
+biprogest['x'] = MARGEM + ECG_VISIVEL_PX - saco_esq
+
+# eCG: sobreposicao explicita ate a borda real do saco, ele fica atras (pintado antes)
+ecg = unidades['ecg']
+pouch_esq = biprogest['x'] + saco_esq
+ecg['x'] = pouch_esq - ECG_VISIVEL_PX
+
+# energect: sobreposicao explicita do outro lado, tambem pela borda real do saco
+pouch_dir = biprogest['x'] + saco_dir
+energect = unidades['energect']
+energect['x'] = pouch_dir - round(energect['im'].width * ENERGECT_ESCONDIDO_FRAC)
+
+# sincroben, clocio: encaixe por silhueta (evita colisao de verdade), a frente
+sincroben = unidades['sincroben']
+sincroben['x'] = encaixar(energect, sincroben, GAP_FRENTE)
+clocio = unidades['clocio']
+clocio['x'] = encaixar(sincroben, clocio, GAP_FRENTE)
+
+xmax = max(u['x'] + u['im'].width for u in unidades.values())
+xmin = min(u['x'] for u in unidades.values())
+DESLOC = MARGEM - xmin
+for u in unidades.values():
+    u['x'] += DESLOC
+W = xmax + DESLOC + MARGEM
 
 canvas = Image.new('RGBA', (W, H), (255, 255, 255, 255))
 
 # sombra de contato procedural, unica luz, mesma pra todos os produtos
 sh = Image.new('L', (W, H), 0)
 d = ImageDraw.Draw(sh)
-for u in unidades:
+for u in unidades.values():
     im, x0 = u['im'], u['x']
     a = np.array(im)[:, :, 3] > 190
     ys = np.where(a.any(axis=1))[0]
@@ -182,7 +222,7 @@ sh = sh.point(lambda v: int(v*0.20))
 canvas.paste(Image.new('RGBA', (W, H), (58, 68, 86, 255)), (0, 0), sh)
 
 for chave in ORDEM_Z:
-    u = next(u for u in unidades if u['chave'] == chave)
+    u = unidades[chave]
     canvas.alpha_composite(u['im'], (u['x'], u['oy']))
 
 canvas = canvas.crop((0, 0, W, H))
